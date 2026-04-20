@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useWizardStore } from "@/lib/wizard/store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { SectionsStep } from "./steps/SectionsStep";
 import { DataSourceStep } from "./steps/DataSourceStep";
 import { DesignStep } from "./steps/DesignStep";
 import { ReviewStep } from "./steps/ReviewStep";
+import type { StepHandle } from "./steps/types";
 
 const steps = [
   { label: "Basics", Component: BasicsStep },
@@ -20,10 +22,22 @@ const steps = [
 
 export function WizardShell() {
   const { currentStep, nextStep, prevStep } = useWizardStore();
+  const stepRef = useRef<StepHandle>(null);
+
   const { Component, label } = steps[currentStep];
   const progress = ((currentStep + 1) / steps.length) * 100;
   const isLast = currentStep === steps.length - 1;
   const isFirst = currentStep === 0;
+
+  const handleNext = async () => {
+    // Review step has no form to validate
+    if (isLast) {
+      alert("Generation will be wired up in Phase 3 🚀");
+      return;
+    }
+    const ok = await stepRef.current?.submit();
+    if (ok) nextStep();
+  };
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 space-y-6">
@@ -38,22 +52,14 @@ export function WizardShell() {
       </div>
 
       <Card className="p-6 min-h-[320px]">
-        <Component />
+        <Component ref={stepRef} />
       </Card>
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={prevStep} disabled={isFirst}>
           Back
         </Button>
-        <Button
-          onClick={() => {
-            if (isLast) {
-              // Generation trigger comes in Phase 3
-              alert("Generation will be wired up in Phase 3 🚀");
-            } else {
-              nextStep();
-            }
-          }}>
+        <Button onClick={handleNext}>
           {isLast ? "Generate Dashboard" : "Next"}
         </Button>
       </div>
