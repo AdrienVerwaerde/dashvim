@@ -12,52 +12,33 @@ export const appTypes = [
 ] as const;
 
 export const basicsSchema = z.object({
-  dashboardName: z
-    .string()
-    .min(3, "Name must be at least 3 characters")
-    .max(50, "Name must be under 50 characters"),
-  appType: z.enum(appTypes, { message: "Please select an app type" }),
-  description: z.string().max(500, "Keep it under 500 characters").optional(),
+  dashboardName: z.string().min(3).max(50),
+  appType: z.enum(appTypes),
+  description: z.string().max(500).optional(),
 });
+export type BasicsData = z.infer<typeof basicsSchema>;
 
 // ---------- Step 2: Sections ----------
 export const sectionsSchema = z.object({
   sections: z.array(z.string()).min(1, "Select at least one section"),
 });
+export type SectionsData = z.infer<typeof sectionsSchema>;
 
-// ---------- Step 3: Data Sources ----------
-export const dataSourceTypes = [
-  "rest",
-  "graphql",
-  "supabase",
-  "firebase",
-  "mock",
-] as const;
-
+// ---------- Step 3: Data Source ----------
 export const dataSourceSchema = z.object({
-  sourceType: z.enum(dataSourceTypes),
+  sourceType: z.enum(["rest", "graphql", "mock", "other"]),
   baseUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  authType: z.enum(["none", "bearer", "apiKey", "oauth"]).default("none"),
+  authType: z.enum(["none", "bearer", "apiKey", "cookie"]),
 });
+export type DataSourceData = z.infer<typeof dataSourceSchema>;
 
 // ---------- Step 4: Design ----------
 export const designSchema = z.object({
-  theme: z.enum(["light", "dark", "system"]).default("system"),
-  primaryColor: z.string().default("slate"),
-  layout: z.enum(["sidebar", "topbar"]).default("sidebar"),
+  theme: z.enum(["light", "dark", "system"]),
+  primaryColor: z
+    .string()
+    .regex(/^#([0-9A-Fa-f]{6})$/, "Must be a hex color like #3b82f6"),
+  layout: z.enum(["sidebar", "topbar", "compact"]),
+  density: z.enum(["comfortable", "compact"]),
 });
-
-// ---------- Full wizard ----------
-export const wizardSchema = z.object({
-  basics: basicsSchema,
-  sections: sectionsSchema,
-  dataSource: dataSourceSchema,
-  design: designSchema,
-});
-
-// TypeScript types auto-generated from Zod
-export type Basics = z.infer<typeof basicsSchema>;
-export type Sections = z.infer<typeof sectionsSchema>;
-export type DataSource = z.infer<typeof dataSourceSchema>;
-export type Design = z.infer<typeof designSchema>;
-export type WizardData = z.infer<typeof wizardSchema>;
+export type DesignData = z.infer<typeof designSchema>;

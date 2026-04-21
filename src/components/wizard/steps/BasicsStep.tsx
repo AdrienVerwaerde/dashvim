@@ -3,8 +3,8 @@
 import { forwardRef, useImperativeHandle } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { basicsSchema, type Basics } from "@/lib/wizard/schemas";
 import { useWizardStore } from "@/lib/wizard/store";
+import { BasicsData, basicsSchema } from "@/lib/wizard/schemas";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +27,7 @@ export const BasicsStep = forwardRef<StepHandle>(function BasicsStep(_, ref) {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<Basics>({
+  } = useForm<BasicsData>({
     resolver: zodResolver(basicsSchema),
     defaultValues: {
       dashboardName: saved.dashboardName ?? "",
@@ -77,7 +77,7 @@ export const BasicsStep = forwardRef<StepHandle>(function BasicsStep(_, ref) {
         <Select
           value={appType}
           onValueChange={(v) =>
-            setValue("appType", v as Basics["appType"], {
+            setValue("appType", v as BasicsData["appType"], {
               shouldValidate: true,
             })
           }>
