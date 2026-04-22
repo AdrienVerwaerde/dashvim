@@ -42,3 +42,14 @@ export const designSchema = z.object({
   density: z.enum(["comfortable", "compact"]),
 });
 export type DesignData = z.infer<typeof designSchema>;
+
+// ---------- Combined wizard schema ----------
+// Aggregates all four steps into a single object.
+// Used by the /api/generate route to validate the full payload.
+export const WizardDataSchema = z.object({
+  basics: basicsSchema,
+  sections: sectionsSchema,
+  dataSource: dataSourceSchema,
+  design: designSchema,
+});
+export type WizardData = z.infer<typeof WizardDataSchema>;

@@ -52,7 +52,7 @@ export const BasicsStep = forwardRef<StepHandle>(function BasicsStep(_, ref) {
   const appType = watch("appType");
 
   return (
-    <form className="space-y-5">
+    <form className="w-full space-y-5">
       <div>
         <h2 className="text-2xl font-semibold">Basics</h2>
         <p className="text-muted-foreground text-sm">

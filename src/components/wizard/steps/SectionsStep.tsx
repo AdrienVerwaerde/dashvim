@@ -3,7 +3,7 @@
 import { forwardRef, useImperativeHandle, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { sectionsSchema, type Sections } from "@/lib/wizard/schemas";
+import { sectionsSchema, type SectionsData } from "@/lib/wizard/schemas";
 import { useWizardStore } from "@/lib/wizard/store";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -59,7 +59,7 @@ export const SectionsStep = forwardRef<StepHandle>(
       watch,
       setValue,
       formState: { errors },
-    } = useForm<Sections>({
+    } = useForm<SectionsData>({
       resolver: zodResolver(sectionsSchema),
       defaultValues: {
         sections: saved.sections ?? [],
@@ -89,7 +89,7 @@ export const SectionsStep = forwardRef<StepHandle>(
     }));
 
     return (
-      <form className="space-y-5">
+      <form className="w-full space-y-5">
         <div>
           <h2 className="text-2xl font-semibold">Sections</h2>
           <p className="text-muted-foreground text-sm">

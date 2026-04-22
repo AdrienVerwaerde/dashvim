@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Basics, Sections, DataSource, Design } from "./schemas";
+import type {
+  BasicsData,
+  SectionsData,
+  DataSourceData,
+  DesignData,
+} from "./schemas";
 
 // What this file does:
 // Holds all wizard data in one place, accessible from any component
@@ -10,21 +15,21 @@ import type { Basics, Sections, DataSource, Design } from "./schemas";
 
 export type WizardStep = 0 | 1 | 2 | 3 | 4; // 0=basics, 4=review
 
-interface WizardState {
+export interface WizardState {
   currentStep: WizardStep;
-  basics: Partial<Basics>;
-  sections: Partial<Sections>;
-  dataSource: Partial<DataSource>;
-  design: Partial<Design>;
+  basics: Partial<BasicsData>;
+  sections: Partial<SectionsData>;
+  dataSource: Partial<DataSourceData>;
+  design: Partial<DesignData>;
 
   // actions
   setStep: (step: WizardStep) => void;
   nextStep: () => void;
   prevStep: () => void;
-  updateBasics: (data: Partial<Basics>) => void;
-  updateSections: (data: Partial<Sections>) => void;
-  updateDataSource: (data: Partial<DataSource>) => void;
-  updateDesign: (data: Partial<Design>) => void;
+  updateBasics: (data: Partial<BasicsData>) => void;
+  updateSections: (data: Partial<SectionsData>) => void;
+  updateDataSource: (data: Partial<DataSourceData>) => void;
+  updateDesign: (data: Partial<DesignData>) => void;
   reset: () => void;
 }
 
@@ -35,8 +40,9 @@ const initialState = {
   dataSource: { authType: "none" as const },
   design: {
     theme: "system" as const,
-    primaryColor: "slate",
+    primaryColor: "#3b82f6",
     layout: "sidebar" as const,
+    density: "comfortable" as const,
   },
 };
 

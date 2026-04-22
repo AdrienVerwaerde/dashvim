@@ -1,9 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useWizardStore } from "@/lib/wizard/store";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { BasicsStep } from "./steps/BasicsStep";
 import { SectionsStep } from "./steps/SectionsStep";
@@ -12,54 +11,100 @@ import { DesignStep } from "./steps/DesignStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import type { StepHandle } from "./steps/types";
 
-const steps = [
-  { label: "Basics", Component: BasicsStep },
-  { label: "Sections", Component: SectionsStep },
-  { label: "Data Source", Component: DataSourceStep },
-  { label: "Design", Component: DesignStep },
-  { label: "Review", Component: ReviewStep },
-];
+const STEP_LABELS = [
+  "Basics",
+  "Sections",
+  "Data Source",
+  "Design",
+  "Review",
+] as const;
 
 export function WizardShell() {
-  const { currentStep, nextStep, prevStep } = useWizardStore();
+  // Pull only what we need from the store (re-render only when these change)
+  const currentStep = useWizardStore((s) => s.currentStep);
+  const nextStep = useWizardStore((s) => s.nextStep);
+  const prevStep = useWizardStore((s) => s.prevStep);
+
+  // One ref shared by whichever step is currently mounted.
+  // Only one step is rendered at a time, so this is safe.
   const stepRef = useRef<StepHandle>(null);
 
-  const { Component, label } = steps[currentStep];
-  const progress = ((currentStep + 1) / steps.length) * 100;
-  const isLast = currentStep === steps.length - 1;
-  const isFirst = currentStep === 0;
+  // Prevents double-clicks while submit() is in flight
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleNext = async () => {
-    // Review step has no form to validate
-    if (isLast) {
-      alert("Generation will be wired up in Phase 3 🚀");
-      return;
+  const isFirst = currentStep === 0;
+  const isLast = currentStep === STEP_LABELS.length - 1;
+  const progressValue = ((currentStep + 1) / STEP_LABELS.length) * 100;
+
+  async function handleNext() {
+    if (!stepRef.current) return;
+    setSubmitting(true);
+    try {
+      const ok = await stepRef.current.submit();
+      if (ok) {
+        if (isLast) {
+          console.log("Wizard complete — ready to generate dashboard");
+        } else {
+          nextStep();
+        }
+      }
+      // If !ok, validation errors are already displayed inside the step.
+    } finally {
+      setSubmitting(false);
     }
-    const ok = await stepRef.current?.submit();
-    if (ok) nextStep();
-  };
+  }
 
   return (
-    <div className="max-w-3xl mx-auto py-10 px-4 space-y-6">
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>
-            Step {currentStep + 1} of {steps.length} — {label}
+    <div className="mx-auto w-full max-w-3xl px-4 py-10">
+      {/* Header */}
+      <header className="mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create your dashboard
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Step {currentStep + 1} of {STEP_LABELS.length}:{" "}
+          <span className="text-foreground font-medium">
+            {STEP_LABELS[currentStep]}
           </span>
-          <span>{Math.round(progress)}%</span>
-        </div>
-        <Progress value={progress} />
-      </div>
+        </p>
 
-      <Card className="p-6 min-h-[320px]">
-        <Component ref={stepRef} />
-      </Card>
+        <Progress value={progressValue} className="mt-4" />
 
+        <ol className="text-muted-foreground mt-3 flex justify-between text-xs">
+          {STEP_LABELS.map((label, i) => (
+            <li
+              key={label}
+              className={
+                i === currentStep
+                  ? "text-foreground font-medium"
+                  : i < currentStep
+                    ? "text-foreground/70"
+                    : ""
+              }>
+              {label}
+            </li>
+          ))}
+        </ol>
+      </header>
+
+      {/* Step content */}
+      <main className="mb-8 w-full">
+        {currentStep === 0 && <BasicsStep ref={stepRef} />}
+        {currentStep === 1 && <SectionsStep ref={stepRef} />}
+        {currentStep === 2 && <DataSourceStep ref={stepRef} />}
+        {currentStep === 3 && <DesignStep ref={stepRef} />}
+        {currentStep === 4 && <ReviewStep ref={stepRef} />}
+      </main>
+
+      {/* Navigation */}
       <div className="flex justify-between">
-        <Button variant="outline" onClick={prevStep} disabled={isFirst}>
+        <Button
+          variant="outline"
+          onClick={prevStep}
+          disabled={isFirst || submitting}>
           Back
         </Button>
-        <Button onClick={handleNext}>
+        <Button onClick={handleNext} disabled={submitting}>
           {isLast ? "Generate Dashboard" : "Next"}
         </Button>
       </div>

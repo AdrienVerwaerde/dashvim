@@ -70,7 +70,7 @@ export const DesignStep = forwardRef<StepHandle>((_, ref) => {
   );
 
   return (
-    <form className="space-y-5">
+    <form className="w-full space-y-5">
       <div>
         <h2 className="text-2xl font-semibold">Design</h2>
         <p className="text-muted-foreground text-sm">

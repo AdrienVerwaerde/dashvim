@@ -19,7 +19,7 @@ export const ReviewStep = forwardRef<StepHandle>((_, ref) => {
   );
 
   return (
-    <div className="space-y-5">
+    <div className="w-full space-y-5">
       <div>
         <h2 className="text-2xl font-semibold">Review</h2>
         <p className="text-muted-foreground text-sm">
