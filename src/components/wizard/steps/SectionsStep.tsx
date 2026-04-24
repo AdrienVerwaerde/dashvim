@@ -8,40 +8,7 @@ import { useWizardStore } from "@/lib/wizard/store";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import type { StepHandle } from "./types";
-
-// Base catalog of sections, available for all app types
-const BASE_SECTIONS = [
-  { id: "overview", label: "Overview (KPIs & summary)" },
-  { id: "tables", label: "Data tables (sort/filter/paginate)" },
-  { id: "charts", label: "Charts & analytics" },
-  { id: "crud", label: "CRUD forms (create/edit/delete)" },
-  { id: "users", label: "User management" },
-  { id: "settings", label: "Settings page" },
-  { id: "auth", label: "Authentication (login/signup)" },
-  { id: "notifications", label: "Notifications / activity log" },
-  { id: "export", label: "Export data (CSV, PDF)" },
-  { id: "search", label: "Global search" },
-];
-
-// Extra sections by app type
-const EXTRA_BY_APP: Record<string, { id: string; label: string }[]> = {
-  saas: [
-    { id: "subscriptions", label: "Subscriptions & billing" },
-    { id: "plans", label: "Plans & pricing" },
-  ],
-  ecommerce: [
-    { id: "products", label: "Products catalog" },
-    { id: "orders", label: "Orders & fulfillment" },
-    { id: "customers", label: "Customers" },
-  ],
-  content: [
-    { id: "posts", label: "Posts / articles" },
-    { id: "comments", label: "Comments moderation" },
-    { id: "media", label: "Media library" },
-  ],
-  internal: [{ id: "audit", label: "Audit log" }],
-  other: [],
-};
+import { BASE_SECTIONS, EXTRA_BY_APP } from "@/lib/wizard/sections-catalog";
 
 export const SectionsStep = forwardRef<StepHandle>(
   function SectionsStep(_, ref) {

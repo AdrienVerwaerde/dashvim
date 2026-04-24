@@ -19,8 +19,12 @@ export const basicsSchema = z.object({
 export type BasicsData = z.infer<typeof basicsSchema>;
 
 // ---------- Step 2: Sections ----------
+import { SECTION_IDS } from "./sections-catalog";
+
 export const sectionsSchema = z.object({
-  sections: z.array(z.string()).min(1, "Select at least one section"),
+  sections: z
+    .array(z.enum(SECTION_IDS))
+    .min(1, "Select at least one section"),
 });
 export type SectionsData = z.infer<typeof sectionsSchema>;
 

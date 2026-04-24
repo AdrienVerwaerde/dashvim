@@ -10,6 +10,9 @@ import { DataSourceStep } from "./steps/DataSourceStep";
 import { DesignStep } from "./steps/DesignStep";
 import { ReviewStep } from "./steps/ReviewStep";
 import type { StepHandle } from "./steps/types";
+import { useRouter } from "next/navigation";
+import { useSpecStore } from "@/lib/wizard/spec-store";
+import { WizardDataSchema } from "@/lib/wizard/schemas";
 
 const STEP_LABELS = [
   "Basics",
@@ -36,19 +39,41 @@ export function WizardShell() {
   const isLast = currentStep === STEP_LABELS.length - 1;
   const progressValue = ((currentStep + 1) / STEP_LABELS.length) * 100;
 
+  const router = useRouter();
+  const setSpec = useSpecStore((s) => s.setSpec);
+
   async function handleNext() {
     if (!stepRef.current) return;
     setSubmitting(true);
     try {
       const ok = await stepRef.current.submit();
-      if (ok) {
-        if (isLast) {
-          console.log("Wizard complete — ready to generate dashboard");
-        } else {
-          nextStep();
-        }
+      if (!ok) return; // validation errors shown inside the step
+
+      if (!isLast) {
+        nextStep();
+        return;
       }
-      // If !ok, validation errors are already displayed inside the step.
+
+      // Assemble + validate the full spec.
+      const state = useWizardStore.getState();
+      const candidate = {
+        basics: state.basics,
+        sections: state.sections,
+        dataSource: state.dataSource,
+        design: state.design,
+      };
+
+      const parsed = WizardDataSchema.safeParse(candidate);
+      if (!parsed.success) {
+        console.error("Spec validation failed:", parsed.error.flatten());
+        alert(
+          "Something is missing or invalid. Please go back through the steps.",
+        );
+        return;
+      }
+
+      setSpec(parsed.data);
+      router.push("/result");
     } finally {
       setSubmitting(false);
     }
